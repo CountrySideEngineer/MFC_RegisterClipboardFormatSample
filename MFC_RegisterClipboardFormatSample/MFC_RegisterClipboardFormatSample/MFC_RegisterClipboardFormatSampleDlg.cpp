@@ -112,20 +112,18 @@ void CMFCRegisterClipboardFormatSampleDlg::OnBnClickedButton1()
 	DataSample4.AddSubData(&DataSample4_2);
 	DataSample4.AddSubData(&DataSample4_3);
 
-	CArray<CDataSample*> SrcData;
-	SrcData.Add(&DataSample1);
-	SrcData.Add(&DataSample2);
-	SrcData.Add(&DataSample3);
-	SrcData.Add(&DataSample4);
+	CArray<CDataSample*> SrcData1;
+	SrcData1.Add(&DataSample1);
+	SrcData1.Add(&DataSample2);
+	SrcData1.Add(&DataSample3);
+	SrcData1.Add(&DataSample4);
 
 	COrgClipBoard clipBoard;
-	clipBoard.Copy(SrcData);
+	clipBoard.Copy(SrcData1);
 
 	CArray<CDataSample*> DstData;
 	DstData.RemoveAll();
-
 	clipBoard.Paste(DstData);
-
 	for (INT_PTR Index = 0; Index < DstData.GetCount(); Index++) {
 		CDataSample* Item = DstData.GetAt(Index);
 		Item->Trace();

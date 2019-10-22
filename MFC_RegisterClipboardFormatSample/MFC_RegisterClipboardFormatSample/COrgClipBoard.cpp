@@ -18,6 +18,27 @@ COrgClipBoard::COrgClipBoard()
  */
 void COrgClipBoard::Copy(CArray<CDataSample*>& SrcData)
 {
+	HGLOBAL hData = this->GetHGlobal(SrcData);
+
+	CString ConnectedName = this->ConnectName(SrcData);
+	HGLOBAL hConnNameData = this->GetHGlobal(ConnectedName);
+
+	if (::OpenClipboard(NULL)) {
+		::EmptyClipboard();
+		if (NULL == ::SetClipboardData(this->m_RegisteredId, hData)) {
+			TRACE(_T("SetClipboardData() failed\r\n"));
+			::GlobalFree(hData);
+		}
+		if (NULL == ::SetClipboardData(CF_TEXT, hConnNameData)) {
+			TRACE(_T("SetClipboardData(CF_TEXT) failed\r\n"));
+			::GlobalFree(hConnNameData);
+		}
+		::CloseClipboard();
+	}
+}
+
+HGLOBAL COrgClipBoard::GetHGlobal(CArray<CDataSample*>& SrcData)
+{
 	CSharedFile SharedFile;
 	{
 		CArchive Archive(&SharedFile, CArchive::store);
@@ -27,15 +48,67 @@ void COrgClipBoard::Copy(CArray<CDataSample*>& SrcData)
 		}
 	}
 	HGLOBAL hData = SharedFile.Detach();
+	
+	return hData;
+}
+
+HGLOBAL COrgClipBoard::GetHGlobal(CString& SrcData)
+{
+	int SrcDataLen = SrcData.GetLength() + 1;	//末尾の'\0'のために、+1する。
+	HGLOBAL hData = (HGLOBAL)::GlobalAlloc(GHND, SrcDataLen * sizeof(TCHAR));
+	if (0 == hData) {
+		TRACE(_T("GlobalAlloc() failed\r\n"));
+		return hData;
+	}
+	TCHAR* CharacterData = (TCHAR*)::GlobalLock(hData);
+	if (NULL == CharacterData) {
+		TRACE(_T("GlobalLock() failed\r\n"));
+		::GlobalFree(hData);
+
+		return 0;
+	}
+	ZeroMemory(CharacterData, SrcDataLen * sizeof(TCHAR));	//「0」で初期化
+	if (0 != _tcscpy_s(CharacterData, SrcDataLen, SrcData.GetString())) {//第2引数の単位に注意！
+		TRACE(_T("_tcscpy_s() failed\r\n"));
+		::GlobalFree(hData);
+
+		return 0;
+	}
+	::GlobalUnlock(hData);
+
+	return hData;
+}
+
+
+/**
+ *	引数で指定されたデータを、シリアライズ化してクリップボードにセットする。
+ *
+ *	@param[in]	SrcData	コピー元データ
+ */
+void COrgClipBoard::Copy(CString& SrcData)
+{
+	INT_PTR SrcDataLen = SrcData.GetLength() * sizeof(TCHAR) + sizeof(TCHAR);
+	HGLOBAL hData = (HGLOBAL)::GlobalAlloc(GHND, SrcDataLen);
+	if (NULL == hData) {
+		TRACE(_T("::GlobalAlloc() failed\n"));
+
+		return;
+	}
+	TCHAR* Data = (TCHAR*)::GlobalLock(hData);
+	if (NULL == Data) {
+		TRACE(_T("::GlobalLock() failed\n"));
+
+		return;
+	}
+	_tcscpy_s(Data, SrcDataLen, SrcData);
+	::GlobalUnlock(hData);
 
 	if (::OpenClipboard(NULL)) {
-		::EmptyClipboard();
-		if (NULL == ::SetClipboardData(this->m_RegisteredId, hData)) {
-			TRACE(_T("SetClipboardData() failed\r\n"));
-			::GlobalFree(hData);
-		}
-		::CloseClipboard();
+		::SetClipboardData(CF_TEXT, hData);
+		::SetClipboardData(CF_TEXT, hData);
+		::SetClipboardData(CF_TEXT, hData);
 	}
+	::CloseClipboard();
 }
 
 /**
@@ -88,4 +161,16 @@ int COrgClipBoard::MemorySize(const CArray<CDataSample*>& SrcData)
 		DataSize += SubSrcData.GetSize();
 	}
 	return DataSize;
+}
+
+CString COrgClipBoard::ConnectName(const CArray<CDataSample*>& SrcData)
+{
+	CString ConnectedName = _T("");
+	for (INT_PTR Index = 0; Index < SrcData.GetCount(); Index++) {
+		CDataSample* SrcItem = SrcData.GetAt(Index);
+		ConnectedName += SrcItem->GetSampleName();
+		ConnectedName += _T("\t");
+	}
+
+	return ConnectedName;
 }
