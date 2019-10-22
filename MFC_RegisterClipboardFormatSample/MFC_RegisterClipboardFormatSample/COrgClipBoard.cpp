@@ -37,6 +37,12 @@ void COrgClipBoard::Copy(CArray<CDataSample*>& SrcData)
 	}
 }
 
+/**
+ *	配列のコピー用ハンドルを生成する。
+ *
+ *	@param[in]	SrcData	コピー元データ
+ *	@return	コピー元データをクリップボードに設定するためのハンドル
+ */
 HGLOBAL COrgClipBoard::GetHGlobal(CArray<CDataSample*>& SrcData)
 {
 	CSharedFile SharedFile;
@@ -52,6 +58,12 @@ HGLOBAL COrgClipBoard::GetHGlobal(CArray<CDataSample*>& SrcData)
 	return hData;
 }
 
+/**
+ *	配列の中の文字列コピー用ハンドルを生成する。
+ *
+ *	@param[in]	SrcData	コピー元データ
+ *	@return	コピー元データをクリップボードに設定するためのハンドル
+ */
 HGLOBAL COrgClipBoard::GetHGlobal(CString& SrcData)
 {
 	int SrcDataLen = SrcData.GetLength() + 1;	//末尾の'\0'のために、+1する。
@@ -77,38 +89,6 @@ HGLOBAL COrgClipBoard::GetHGlobal(CString& SrcData)
 	::GlobalUnlock(hData);
 
 	return hData;
-}
-
-
-/**
- *	引数で指定されたデータを、シリアライズ化してクリップボードにセットする。
- *
- *	@param[in]	SrcData	コピー元データ
- */
-void COrgClipBoard::Copy(CString& SrcData)
-{
-	INT_PTR SrcDataLen = SrcData.GetLength() * sizeof(TCHAR) + sizeof(TCHAR);
-	HGLOBAL hData = (HGLOBAL)::GlobalAlloc(GHND, SrcDataLen);
-	if (NULL == hData) {
-		TRACE(_T("::GlobalAlloc() failed\n"));
-
-		return;
-	}
-	TCHAR* Data = (TCHAR*)::GlobalLock(hData);
-	if (NULL == Data) {
-		TRACE(_T("::GlobalLock() failed\n"));
-
-		return;
-	}
-	_tcscpy_s(Data, SrcDataLen, SrcData);
-	::GlobalUnlock(hData);
-
-	if (::OpenClipboard(NULL)) {
-		::SetClipboardData(CF_TEXT, hData);
-		::SetClipboardData(CF_TEXT, hData);
-		::SetClipboardData(CF_TEXT, hData);
-	}
-	::CloseClipboard();
 }
 
 /**
@@ -163,6 +143,12 @@ int COrgClipBoard::MemorySize(const CArray<CDataSample*>& SrcData)
 	return DataSize;
 }
 
+/**
+ *	名前のプロパティの内容を結合した文字列を返す。
+ *
+ *	@param[in]	SrcData	結合したい情報を含むデータの配列(の参照)
+ *	@return	結合した文字列
+ */
 CString COrgClipBoard::ConnectName(const CArray<CDataSample*>& SrcData)
 {
 	CString ConnectedName = _T("");

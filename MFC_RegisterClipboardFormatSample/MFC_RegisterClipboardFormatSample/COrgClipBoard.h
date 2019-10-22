@@ -9,7 +9,6 @@ public:
 
 public:
 	virtual void Copy(CArray<CDataSample*>& SrcData);
-	virtual void Copy(CString& SrcData);
 	virtual void Paste(CArray<CDataSample*>& SrcData);
 
 protected:
