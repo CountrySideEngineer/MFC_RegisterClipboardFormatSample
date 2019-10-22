@@ -7,6 +7,9 @@
 #include "MFC_RegisterClipboardFormatSample.h"
 #include "MFC_RegisterClipboardFormatSampleDlg.h"
 #include "afxdialogex.h"
+#include "CDataSample.h"
+#include "CDataSampleExtend.h"
+#include "COrgClipBoard.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -31,6 +34,7 @@ void CMFCRegisterClipboardFormatSampleDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMFCRegisterClipboardFormatSampleDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFCRegisterClipboardFormatSampleDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -86,3 +90,44 @@ HCURSOR CMFCRegisterClipboardFormatSampleDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CMFCRegisterClipboardFormatSampleDlg::OnBnClickedButton1()
+{
+	CDataSample DataSample1(10, _T("SampleData1"));
+	CDataSample DataSample1_2(12, _T("SampleData1_2"));
+	CDataSample DataSample2(20, _T("SampleData2"));
+	CDataSample DataSample2_1(21, _T("SampleData2_1"));
+	CDataSample DataSample3(30, _T("SampleData3"));
+	CDataSample DataSample3_1(31, _T("SampleData3_1"));
+	CDataSample DataSample3_2(32, _T("SampleData3_2"));
+	CDataSample DataSample4(40, _T("SampleData4"));
+	CDataSampleExtend DataSample4_1(41, _T("ExtendedData4_1"), 411, _T("SampleData4_1"));
+	CDataSampleExtend DataSample4_2(42, _T("ExtendedData4_2"), 421, _T("SampleData4_2"));
+	CDataSampleExtend DataSample4_3(43, _T("ExtendedData4_2"), 421, _T("SampleData4_2"));
+
+	DataSample1.AddSubData(&DataSample1_2);
+	DataSample2.AddSubData(&DataSample2_1);
+	DataSample3.AddSubData(&DataSample3_1);
+	DataSample3.AddSubData(&DataSample3_2);
+	DataSample4.AddSubData(&DataSample4_1);
+	DataSample4.AddSubData(&DataSample4_2);
+	DataSample4.AddSubData(&DataSample4_3);
+
+	CArray<CDataSample*> SrcData;
+	SrcData.Add(&DataSample1);
+	SrcData.Add(&DataSample2);
+	SrcData.Add(&DataSample3);
+	SrcData.Add(&DataSample4);
+
+	COrgClipBoard clipBoard;
+	clipBoard.Copy(SrcData);
+
+	CArray<CDataSample*> DstData;
+	DstData.RemoveAll();
+
+	clipBoard.Paste(DstData);
+
+	for (INT_PTR Index = 0; Index < DstData.GetCount(); Index++) {
+		CDataSample* Item = DstData.GetAt(Index);
+		Item->Trace();
+	}
+}

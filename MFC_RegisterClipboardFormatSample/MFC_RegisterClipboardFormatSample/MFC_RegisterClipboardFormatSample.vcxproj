@@ -187,6 +187,9 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CDataSample.h" />
+    <ClInclude Include="CDataSampleExtend.h" />
+    <ClInclude Include="COrgClipBoard.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MFC_RegisterClipboardFormatSample.h" />
     <ClInclude Include="MFC_RegisterClipboardFormatSampleDlg.h" />
@@ -195,6 +198,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDataSample.cpp" />
+    <ClCompile Include="CDataSampleExtend.cpp" />
+    <ClCompile Include="COrgClipBoard.cpp" />
     <ClCompile Include="MFC_RegisterClipboardFormatSample.cpp" />
     <ClCompile Include="MFC_RegisterClipboardFormatSampleDlg.cpp" />
     <ClCompile Include="pch.cpp">
