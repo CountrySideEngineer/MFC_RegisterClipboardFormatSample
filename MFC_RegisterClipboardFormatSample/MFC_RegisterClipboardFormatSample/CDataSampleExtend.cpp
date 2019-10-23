@@ -62,7 +62,6 @@ CDataSampleExtend* CDataSampleExtend::CreateCopy()
 	return NewItem;
 }
 
-
 /**
  *	データの内容を表示する。
  */

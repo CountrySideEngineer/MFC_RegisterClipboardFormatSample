@@ -82,6 +82,9 @@ void CDataSample::AddSubData(CDataSample* NewItemBase)
 
 }
 
+/**
+ *	サブデータを含む、データの合計を取得する。
+ */
 INT_PTR CDataSample::GetSize()
 {
 	INT_PTR DataSize = 0;

@@ -115,7 +115,6 @@ void COrgClipBoard::Paste(CArray<CDataSample*>& DstData)
 	}
 }
 
-
 /**
  *	フォーマットを登録する。
  */

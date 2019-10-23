@@ -6,7 +6,6 @@ class COrgClipBoard
 public:
 	COrgClipBoard();
 
-
 public:
 	virtual void Copy(CArray<CDataSample*>& SrcData);
 	virtual void Paste(CArray<CDataSample*>& SrcData);
@@ -22,11 +21,7 @@ protected:
 protected:
 	UINT m_RegisteredId;
 
-
 public:
 	static const CString ORIGINAL_FORMAT_NAME;
-
-
-
 };
 
