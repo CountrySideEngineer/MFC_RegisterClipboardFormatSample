@@ -62,12 +62,12 @@ HGLOBAL COrgClipBoard::GetHGlobal(CArray<CDataSample*>& SrcData)
 	{
 		CArchive Archive(&SharedFile, CArchive::store);
 		if (Archive.IsStoring()) {
-			Archive << CopiedSrcData.GetCount();
-			Archive << 0xFFEEAABB;
-			CopiedSrcData.Serialize(Archive);
-			Archive << CopiedSrcData.GetCount();
-			Archive << 0xFFEEAABB;
-			CopiedSrcData.Serialize(Archive);
+			Archive << 10;
+			for (INT_PTR Index = 0; Index < 10; Index++) {
+				Archive << Index;
+				Archive << CopiedSrcData.GetCount();
+				CopiedSrcData.Serialize(Archive);
+			}
 		}
 	}
 	HGLOBAL hData = SharedFile.Detach();
@@ -122,14 +122,15 @@ void COrgClipBoard::Paste(CArray<CDataSample*>& DstData)
 			SharedFile.SetHandle(BoardDataHandle);
 			{
 				CArchive Archive(&SharedFile, CArchive::load);
-				INT_PTR Count1 = 0;
-				INT_PTR Data = 0;
-				Archive >> Count1;
-				Archive >> Data;
-				DstData.Serialize(Archive);
-				Archive >> Count1;
-				Archive >> Data;
-				DstData.Serialize(Archive);
+				INT_PTR DataNum = 0;
+				Archive >> DataNum;
+				for (INT_PTR Index = 0; Index < DataNum; Index++) {
+					INT_PTR ReadIndex = 0;
+					INT_PTR ReadCount = 0;
+					Archive >> ReadIndex;
+					Archive >> ReadCount;
+					DstData.Serialize(Archive);
+				}
 			}
 			SharedFile.Detach();
 		}
