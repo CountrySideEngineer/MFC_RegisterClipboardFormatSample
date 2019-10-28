@@ -19,7 +19,8 @@ public:
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV サポート
-
+	virtual void Copy();
+	virtual void Paste();
 
 // 実装
 protected:

@@ -92,6 +92,12 @@ HCURSOR CMFCRegisterClipboardFormatSampleDlg::OnQueryDragIcon()
 
 void CMFCRegisterClipboardFormatSampleDlg::OnBnClickedButton1()
 {
+	this->Copy();
+	this->Paste();
+}
+
+void CMFCRegisterClipboardFormatSampleDlg::Copy()
+{
 	CDataSample DataSample1(10, _T("SampleData1"));
 	CDataSample DataSample1_2(12, _T("SampleData1_2"));
 	CDataSample DataSample2(20, _T("SampleData2"));
@@ -121,11 +127,26 @@ void CMFCRegisterClipboardFormatSampleDlg::OnBnClickedButton1()
 	COrgClipBoard clipBoard;
 	clipBoard.Copy(SrcData1);
 
+	for (INT_PTR Index = 0; Index < SrcData1.GetCount(); Index++) {
+		CDataSample* Item = SrcData1.GetAt(Index);
+		Item->Trace();
+	}
+
+}
+
+void CMFCRegisterClipboardFormatSampleDlg::Paste()
+{
 	CArray<CDataSample*> DstData;
 	DstData.RemoveAll();
+
+	COrgClipBoard clipBoard;
 	clipBoard.Paste(DstData);
 	for (INT_PTR Index = 0; Index < DstData.GetCount(); Index++) {
 		CDataSample* Item = DstData.GetAt(Index);
 		Item->Trace();
+
+		delete Item;
+		Item = NULL;
 	}
+	DstData.RemoveAll();
 }

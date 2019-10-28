@@ -45,12 +45,29 @@ void COrgClipBoard::Copy(CArray<CDataSample*>& SrcData)
  */
 HGLOBAL COrgClipBoard::GetHGlobal(CArray<CDataSample*>& SrcData)
 {
+	/*
+	 *	要素がポインタの配列をSerializeすると、「ポインタの示すアドレス」が対象となる。
+	 *	ここで、Serializeしたデータを再度参照する際に「ポインタの示すアドレス」が解放されて
+	 *	いた場合、エラーが発生する。
+	 *	これを回避するために、Serializeするデータは、元になるデータをコピー(ディープコピー)し、
+	 *	それをクリップボードに設定する。
+	 */
+	CArray<CDataSample*> CopiedSrcData;
+	for (INT_PTR Index = 0; Index < SrcData.GetCount(); Index++) {
+		CDataSample* SrcItem = SrcData.GetAt(Index);
+		CopiedSrcData.Add(SrcItem->CreateCopy());
+	}
+
 	CSharedFile SharedFile;
 	{
 		CArchive Archive(&SharedFile, CArchive::store);
 		if (Archive.IsStoring()) {
-			Archive << SrcData.GetCount();
-			SrcData.Serialize(Archive);
+			Archive << CopiedSrcData.GetCount();
+			Archive << 0xFFEEAABB;
+			CopiedSrcData.Serialize(Archive);
+			Archive << CopiedSrcData.GetCount();
+			Archive << 0xFFEEAABB;
+			CopiedSrcData.Serialize(Archive);
 		}
 	}
 	HGLOBAL hData = SharedFile.Detach();
@@ -105,8 +122,13 @@ void COrgClipBoard::Paste(CArray<CDataSample*>& DstData)
 			SharedFile.SetHandle(BoardDataHandle);
 			{
 				CArchive Archive(&SharedFile, CArchive::load);
-				INT_PTR Count = 0;
-				Archive >> Count;
+				INT_PTR Count1 = 0;
+				INT_PTR Data = 0;
+				Archive >> Count1;
+				Archive >> Data;
+				DstData.Serialize(Archive);
+				Archive >> Count1;
+				Archive >> Data;
 				DstData.Serialize(Archive);
 			}
 			SharedFile.Detach();
